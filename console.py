@@ -14,20 +14,20 @@ from models.review import Review
 
 
 def parse(arg):
-    curly_braces = re.search(r"\{(.*?)\}", arg)
-    brackets = re.search(r"\[(.*?)\]", arg)
-    if curly_braces is None:
-        if brackets is None:
+    crl_brc = re.search(r"\{(.*?)\}", arg)
+    brkts = re.search(r"\[(.*?)\]", arg)
+    if crl_brc is None:
+        if brkts is None:
             return [i.strip(",") for i in split(arg)]
         else:
-            lexer = split(arg[:brackets.span()[0]])
-            retl = [i.strip(",") for i in lexer]
-            retl.append(brackets.group())
+            lxr = split(arg[:brkts.span()[0]])
+            retl = [i.strip(",") for i in lxr]
+            retl.append(brkts.group())
             return retl
     else:
-        lexer = split(arg[:curly_braces.span()[0]])
-        retl = [i.strip(",") for i in lexer]
-        retl.append(curly_braces.group())
+        lxr = split(arg[:crl_brc.span()[0]])
+        retl = [i.strip(",") for i in lxr]
+        retl.append(crl_brc.group())
         return retl
 
 
@@ -62,15 +62,15 @@ class HBNBCommand(cmd.Cmd):
             "count": self.do_count,
             "update": self.do_update
         }
-        match = re.search(r"\.", arg)
-        if match is not None:
-            argl = [arg[:match.span()[0]], arg[match.span()[1]:]]
-            match = re.search(r"\((.*?)\)", argl[1])
-            if match is not None:
-                command = [argl[1][:match.span()[0]], match.group()[1:-1]]
-                if command[0] in argdict.keys():
-                    call = "{} {}".format(argl[0], command[1])
-                    return argdict[command[0]](call)
+        match_case = re.search(r"\.", arg)
+        if match_case is not None:
+            argl = [arg[:match_case.span()[0]], arg[match_case.span()[1]:]]
+            match_case = re.search(r"\((.*?)\)", argl[1])
+            if match_case is not None:
+                cmd_l = [argl[1][:match_case.span()[0]], match_case.group()[1:-1]]
+                if cmd_l[0] in argdict.keys():
+                    call = "{} {}".format(argl[0], cmd_l[1])
+                    return argdict[cmd_l[0]](call)
         print("*** Unknown syntax: {}".format(arg))
         return False
 
@@ -117,17 +117,17 @@ class HBNBCommand(cmd.Cmd):
         """Usage: destroy <class> <id> or <class>.destroy(<id>)
         Delete a class instance of a given id."""
         argl = parse(arg)
-        objdict = storage.all()
+        objdct = storage.all()
         if len(argl) == 0:
             print("** class name missing **")
         elif argl[0] not in HBNBCommand.__classes:
             print("** class doesn't exist **")
         elif len(argl) == 1:
             print("** instance id missing **")
-        elif "{}.{}".format(argl[0], argl[1]) not in objdict.keys():
+        elif "{}.{}".format(argl[0], argl[1]) not in objdct.keys():
             print("** no instance found **")
         else:
-            del objdict["{}.{}".format(argl[0], argl[1])]
+            del objdct["{}.{}".format(argl[0], argl[1])]
             storage.save()
 
     def do_all(self, arg):
@@ -150,11 +150,11 @@ class HBNBCommand(cmd.Cmd):
         """Usage: count <class> or <class>.count()
         Retrieve the number of instances of a given class."""
         argl = parse(arg)
-        count = 0
+        c = 0
         for obj in storage.all().values():
             if argl[0] == obj.__class__.__name__:
-                count += 1
-        print(count)
+                c += 1
+        print(c)
 
     def do_update(self, arg):
         """Usage: update <class> <id> <attribute_name> <attribute_value> or
@@ -188,21 +188,21 @@ class HBNBCommand(cmd.Cmd):
                 return False
 
         if len(argl) == 4:
-            obj = objdict["{}.{}".format(argl[0], argl[1])]
-            if argl[2] in obj.__class__.__dict__.keys():
-                valtype = type(obj.__class__.__dict__[argl[2]])
-                obj.__dict__[argl[2]] = valtype(argl[3])
+            my_obj = objdict["{}.{}".format(argl[0], argl[1])]
+            if argl[2] in my_obj.__class__.__dict__.keys():
+                valtype = type(my_obj.__class__.__dict__[argl[2]])
+                my_obj.__dict__[argl[2]] = valtype(argl[3])
             else:
-                obj.__dict__[argl[2]] = argl[3]
+                my_obj.__dict__[argl[2]] = argl[3]
         elif type(eval(argl[2])) == dict:
-            obj = objdict["{}.{}".format(argl[0], argl[1])]
+            my_obj = objdict["{}.{}".format(argl[0], argl[1])]
             for k, v in eval(argl[2]).items():
-                if (k in obj.__class__.__dict__.keys() and
-                        type(obj.__class__.__dict__[k]) in {str, int, float}):
-                    valtype = type(obj.__class__.__dict__[k])
-                    obj.__dict__[k] = valtype(v)
+                if (k in my_obj.__class__.__dict__.keys() and
+                        type(my_obj.__class__.__dict__[k]) in {str, int, float}):
+                    valtype = type(my_obj.__class__.__dict__[k])
+                    my_obj.__dict__[k] = valtype(v)
                 else:
-                    obj.__dict__[k] = v
+                    my_obj.__dict__[k] = v
         storage.save()
 
 

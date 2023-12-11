@@ -56,11 +56,11 @@ class TestAmenity_instantiation(unittest.TestCase):
         self.assertLess(am1.updated_at, am2.updated_at)
 
     def test_str_representation(self):
-        dt = datetime.today()
-        dt_repr = repr(dt)
+        date_time = datetime.today()
+        dt_repr = repr(date_time)
         am = Amenity()
         am.id = "123456"
-        am.created_at = am.updated_at = dt
+        am.created_at = am.updated_at = date_time
         amstr = am.__str__()
         self.assertIn("[Amenity] (123456)", amstr)
         self.assertIn("'id': '123456'", amstr)
